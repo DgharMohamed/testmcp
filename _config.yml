@@ -1,0 +1,23 @@
+title: "MCP — Model Context Protocol"
+description: "The USB-C of AI Integration. An open standard for connecting AI models to any tool or data source."
+url: "https://dgharmohamed.github.io"
+baseurl: "/testmcp"
+
+# Build settings
+theme: null
+layouts_dir: _layouts
+
+# Jekyll plugins
+plugins: []
+
+# Markdown processor
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Exclude from build
+exclude:
+  - README.md
+  - node_modules
+  - vendor
