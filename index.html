@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model Context Protocol — MCP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #6C63FF;
+      --pink:   #FF6B6B;
+      --teal:   #4ECDC4;
+      --dark:   #0D0D1A;
+      --card:   #13132A;
+      --border: rgba(108,99,255,0.25);
+      --text:   #E0E0F0;
+      --muted:  #8888AA;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(108,99,255,.18) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 80% 80%, rgba(78,205,196,.10) 0%, transparent 60%),
+                  var(--dark);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(108,99,255,.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .badge {
+      padding: .35rem .9rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .badge-purple { background: rgba(108,99,255,.2); color: #a89eff; border: 1px solid rgba(108,99,255,.4); }
+    .badge-pink   { background: rgba(255,107,107,.15); color: #ff9f9f; border: 1px solid rgba(255,107,107,.35); }
+    .badge-teal   { background: rgba(78,205,196,.12); color: #7de8e3; border: 1px solid rgba(78,205,196,.3); }
+
+    .hero h1 {
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #fff 30%, var(--purple) 70%, var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: .6rem;
+    }
+
+    .hero .subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero .tagline {
+      max-width: 640px;
+      font-size: 1.05rem;
+      color: #c0c0d8;
+      background: rgba(108,99,255,.08);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: .75rem 1.8rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: .95rem;
+      text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+    .btn-primary { background: var(--purple); color: #fff; }
+    .btn-outline { border: 1px solid var(--border); color: var(--text); background: rgba(255,255,255,.04); }
+
+    /* ── SECTIONS ── */
+    section { padding: 5rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+
+    .section-label {
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--purple);
+      margin-bottom: .5rem;
+    }
+
+    h2 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .lead { font-size: 1.05rem; color: #b0b0cc; max-width: 700px; margin-bottom: 3rem; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    /* ── DIAGRAM CARD ── */
+    .diagram {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      overflow-x: auto;
+      margin: 2rem 0;
+    }
+
+    .diagram pre {
+      font-family: 'Fira Code', monospace;
+      font-size: .85rem;
+      color: #b0ffd8;
+      line-height: 1.8;
+      white-space: pre;
+    }
+
+    /* ── FEATURE GRID ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      transition: border-color .2s, transform .2s;
+    }
+    .feature-card:hover { border-color: var(--purple); transform: translateY(-3px); }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: .75rem;
+    }
+
+    .feature-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .4rem; }
+    .feature-card p  { font-size: .9rem; color: var(--muted); }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; margin: 2rem 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+
+    th {
+      background: rgba(108,99,255,.15);
+      color: #a89eff;
+      padding: .85rem 1.2rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: .8rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: .85rem 1.2rem;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      color: var(--text);
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(108,99,255,.05); }
+
+    thead th:first-child { border-radius: 10px 0 0 0; }
+    thead th:last-child  { border-radius: 0 10px 0 0; }
+    table { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: #080810;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .75rem 1.25rem;
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red   { background: #ff5f57; }
+    .dot-yellow{ background: #febc2e; }
+    .dot-green { background: #28c840; }
+    .code-label { margin-left: auto; font-size: .75rem; color: var(--muted); font-family: 'Fira Code', monospace; }
+
+    .code-block pre {
+      font-family: 'Fira Code', monospace;
+      font-size: .85rem;
+      padding: 1.5rem;
+      color: #cdd6f4;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+
+    .kw  { color: #cba6f7; }
+    .str { color: #a6e3a1; }
+    .key { color: #89b4fa; }
+    .cmt { color: #585b70; }
+
+    /* ── ECOSYSTEM PILLS ── */
+    .pill-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      margin-top: 1.5rem;
+    }
+
+    .pill {
+      padding: .4rem 1rem;
+      border-radius: 999px;
+      font-size: .82rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: rgba(108,99,255,.07);
+      color: #c0c0dd;
+      transition: background .15s, border-color .15s;
+    }
+    .pill:hover { background: rgba(108,99,255,.18); border-color: var(--purple); color: #fff; }
+
+    /* ── QUOTE ── */
+    .quote-box {
+      background: linear-gradient(135deg, rgba(108,99,255,.12), rgba(78,205,196,.08));
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--purple);
+      border-radius: 0 14px 14px 0;
+      padding: 1.75rem 2rem;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: #d0d0ee;
+      margin: 2rem 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    footer a { color: var(--purple); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── SCROLL REVEAL (pure CSS) ── */
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity .55s ease, transform .55s ease;
+      }
+      .reveal.visible { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge-row">
+    <span class="badge badge-purple">Model Context Protocol</span>
+    <span class="badge badge-pink">AI Powered</span>
+    <span class="badge badge-teal">Open Standard · 2024</span>
+  </div>
+  <h1>MCP</h1>
+  <p class="subtitle">The USB-C of AI Integration</p>
+  <p class="tagline">
+    An open standard that lets AI models securely connect to any tool,
+    data source, or service — in a unified, plug-and-play way.
+  </p>
+  <div class="hero-cta">
+    <a href="#what" class="btn btn-primary">Learn More</a>
+    <a href="https://modelcontextprotocol.io" target="_blank" class="btn btn-outline">Official Docs ↗</a>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- WHAT IS MCP -->
+<section id="what" class="reveal">
+  <p class="section-label">Overview</p>
+  <h2>What is MCP?</h2>
+  <p class="lead">
+    <strong>Model Context Protocol</strong> is an open protocol introduced by Anthropic in late 2024.
+    It defines a universal language for AI assistants to communicate with external tools and live data sources.
+  </p>
+
+  <div class="diagram">
+    <pre>
+  WITHOUT MCP                        WITH MCP
+  ─────────────────────────────      ──────────────────────────────────────
+  AI ── custom glue ──► GitHub       AI
+  AI ── custom glue ──► Database      └──► MCP Client
+  AI ── custom glue ──► Filesystem               └──► MCP Server ──► GitHub
+  AI ── custom glue ──► Slack                    └──► MCP Server ──► Database
+  AI ── custom glue ──► AWS                      └──► MCP Server ──► Filesystem
+
+       n × integrations                    1 standard · infinite tools
+    </pre>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WHY IMPORTANT -->
+<section id="why" class="reveal">
+  <p class="section-label">Importance</p>
+  <h2>Why Does MCP Matter?</h2>
+  <p class="lead">Five reasons MCP is a fundamental shift in how AI agents are built.</p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <h3>Security First</h3>
+      <p>Credentials stay inside the MCP server. The AI model never touches raw tokens or passwords. Every operation is scoped and auditable.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔌</div>
+      <h3>Plug-and-Play</h3>
+      <p>Build one MCP server and any compatible AI can use it. No more writing custom glue code for every new model or tool combination.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌍</div>
+      <h3>Open Standard</h3>
+      <p>Community-driven and vendor-neutral. Works with Claude, Kiro, and any future system that adopts the protocol.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>Real-Time Context</h3>
+      <p>AI models read <em>live</em> data — current files, fresh API responses, real database records — not stale training snapshots.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧩</div>
+      <h3>Composability</h3>
+      <p>Chain GitHub + Database + Browser tools in a single AI session. Servers compose without extra orchestration code.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📈</div>
+      <h3>Growing Ecosystem</h3>
+      <p>Hundreds of community servers already exist — GitHub, Slack, AWS, Postgres, Notion, Docker and more. New ones ship daily.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="reveal">
+  <p class="section-label">Architecture</p>
+  <h2>How It Works</h2>
+  <p class="lead">MCP follows a clean three-layer client-server model.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Role</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>🧠 <strong>MCP Host</strong></td><td>The AI application that wants access to tools</td><td>Kiro IDE, Claude Desktop</td></tr>
+        <tr><td>🔗 <strong>MCP Client</strong></td><td>Lives inside the host, manages server connections</td><td>Built into Kiro</td></tr>
+        <tr><td>⚙️ <strong>MCP Server</strong></td><td>Exposes tools, resources, and data</td><td>GitHub MCP, Postgres MCP</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SETUP -->
+<section id="setup" class="reveal">
+  <p class="section-label">Quick Start</p>
+  <h2>Set Up in 30 Seconds</h2>
+  <p class="lead">Add an MCP server to Kiro IDE by editing one JSON file.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="dot dot-red"></span>
+      <span class="dot dot-yellow"></span>
+      <span class="dot dot-green"></span>
+      <span class="code-label">.kiro/settings/mcp.json</span>
+    </div>
+    <pre><span class="kw">{</span>
+  <span class="key">"mcpServers"</span><span class="kw">:</span> <span class="kw">{</span>
+    <span class="key">"github-mcp-server"</span><span class="kw">:</span> <span class="kw">{</span>
+      <span class="key">"url"</span><span class="kw">:</span>      <span class="str">"https://api.githubcopilot.com/mcp/"</span><span class="kw">,</span>
+      <span class="key">"headers"</span><span class="kw">:</span> <span class="kw">{</span>
+        <span class="key">"Authorization"</span><span class="kw">:</span> <span class="str">"Bearer YOUR_GITHUB_TOKEN"</span>
+      <span class="kw">},</span>
+      <span class="key">"disabled"</span><span class="kw">:</span> <span class="kw">false</span>
+    <span class="kw">}</span>
+  <span class="kw">}</span>
+<span class="kw">}</span></pre>
+  </div>
+
+  <p style="color:var(--muted); font-size:.9rem">That's it. Kiro reconnects automatically and your AI can now interact with GitHub. ✅</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- COMPARISON -->
+<section id="compare" class="reveal">
+  <p class="section-label">Comparison</p>
+  <h2>MCP vs Traditional APIs</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>Traditional API</th><th>MCP</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Setup per tool</td><td>✅ Required every time</td><td>❌ One standard for all</td></tr>
+        <tr><td>Credential exposure</td><td>⚠️ Risk of leakage</td><td>✅ Stays in server</td></tr>
+        <tr><td>AI compatibility</td><td>❌ Per-model custom work</td><td>✅ Universal</td></tr>
+        <tr><td>Composability</td><td>❌ Hard to chain tools</td><td>✅ Built-in</td></tr>
+        <tr><td>Community servers</td><td>❌ None</td><td>✅ Hundreds and growing</td></tr>
+        <tr><td>Live data access</td><td>⚠️ Manual implementation</td><td>✅ Native</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ECOSYSTEM -->
+<section id="ecosystem" class="reveal">
+  <p class="section-label">Ecosystem</p>
+  <h2>Available MCP Servers</h2>
+  <p class="lead">The community has already built servers for the most popular tools and platforms.</p>
+
+  <div class="pill-grid">
+    <span class="pill">GitHub</span>
+    <span class="pill">GitLab</span>
+    <span class="pill">Jira</span>
+    <span class="pill">Notion</span>
+    <span class="pill">Slack</span>
+    <span class="pill">PostgreSQL</span>
+    <span class="pill">SQLite</span>
+    <span class="pill">MongoDB</span>
+    <span class="pill">AWS</span>
+    <span class="pill">Google Cloud</span>
+    <span class="pill">Cloudflare</span>
+    <span class="pill">Puppeteer</span>
+    <span class="pill">Playwright</span>
+    <span class="pill">Filesystem</span>
+    <span class="pill">Docker</span>
+    <span class="pill">Kubernetes</span>
+    <span class="pill">Linear</span>
+    <span class="pill">Figma</span>
+    <span class="pill">Stripe</span>
+    <span class="pill">Twilio</span>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SUMMARY -->
+<section id="summary" class="reveal" style="text-align:center">
+  <p class="section-label">TL;DR</p>
+  <h2>The Bottom Line</h2>
+  <div class="quote-box" style="text-align:left; max-width:700px; margin:2rem auto">
+    MCP turns your AI from a smart chatbot into a capable agent that can act in the real world —
+    reading files, calling APIs, managing repos, querying databases — all securely,
+    and with a single open standard.
+  </div>
+  <a href="https://modelcontextprotocol.io" target="_blank" class="btn btn-primary">Read the Official Docs ↗</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  Built with ❤️ using <a href="https://kiro.dev" target="_blank">Kiro IDE</a> + GitHub MCP &nbsp;·&nbsp;
+  <a href="https://github.com/DgharMohamed/testmcp" target="_blank">View on GitHub</a>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.12 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
